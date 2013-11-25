@@ -37,6 +37,7 @@ import javax.security.sasl.AuthenticationException;
 import org.apache.log4j.Logger;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
@@ -102,14 +103,17 @@ public class ShibbolethECPAuthClient {
     private String SP;
 
     private BasicParserPool parserPool;
+    
+    private HttpHost proxyHost;
 
     private static final List<String> REDIRECTABLE = asList("HEAD", "GET");
 
-    public ShibbolethECPAuthClient(String idpURL, String spURL, boolean anyCert) 
+    public ShibbolethECPAuthClient(HttpHost proxy, String idpURL, String spURL, boolean anyCert) 
             throws ConfigurationException, IllegalStateException
     {
-        setIDP(idpURL);
+    	setIDP(idpURL);
         setSP(spURL);
+        setProxy(proxy);
 
         // Use a pooling connection manager, because we'll have to do a call out to the IdP
         // while still being in a connection with the SP
@@ -148,29 +152,54 @@ public class ShibbolethECPAuthClient {
                 .build();
 
         // build our client
-        client = HttpClients.custom()
-                .setConnectionManager(connMgr)
-                // use a proxy if one is specified for the JVM
-                .setRoutePlanner(sdrp)
-                // The client needs to remember the auth cookie
-                .setDefaultRequestConfig(globalRequestConfig)
-                .setDefaultCookieStore(cookieStore)
-                // Add the ECP/PAOS headers - needs to be added first so the cookie we get from
-                // the authentication can be handled by the RequestAddCookies interceptor later
-                .addInterceptorFirst(new HttpRequestPreprocessor())
-                .build();
+        if (proxyHost == null) {
+            client = HttpClients.custom()
+                    .setConnectionManager(connMgr)
+                    // use the proxy settings of the JVM, if specified 
+                    .setRoutePlanner(sdrp)
+                    // The client needs to remember the auth cookie
+                    .setDefaultRequestConfig(globalRequestConfig)
+                    .setDefaultCookieStore(cookieStore)
+                    // Add the ECP/PAOS headers - needs to be added first so the cookie we get from
+                    // the authentication can be handled by the RequestAddCookies interceptor later
+                    .addInterceptorFirst(new HttpRequestPreprocessor())
+                    .build();
+        }
+        else {
+            client = HttpClients.custom()
+                    .setConnectionManager(connMgr)
+                    // use the explicit proxy
+                    .setProxy(proxyHost)
+                    // The client needs to remember the auth cookie
+                    .setDefaultRequestConfig(globalRequestConfig)
+                    .setDefaultCookieStore(cookieStore)
+                    // Add the ECP/PAOS headers - needs to be added first so the cookie we get from
+                    // the authentication can be handled by the RequestAddCookies interceptor later
+                    .addInterceptorFirst(new HttpRequestPreprocessor())
+                    .build();
+        }
 
         DefaultBootstrap.bootstrap();
         parserPool = new BasicParserPool();
         parserPool.setNamespaceAware(true);
     }
 
-    private void setSP(String spURL) {
-        SP = spURL;
+    public ShibbolethECPAuthClient(String idpURL, String spURL, boolean anyCert) 
+            throws ConfigurationException, IllegalStateException
+    {
+    	this(null, idpURL, spURL, true);
     }
 
     private void setIDP(String idpURL) {
         IdP = idpURL;
+    }
+
+    private void setSP(String spURL) {
+        SP = spURL;
+    }
+
+    private void setProxy(HttpHost proxy) {
+        proxyHost = proxy;
     }
 
     @SuppressWarnings("deprecation")
