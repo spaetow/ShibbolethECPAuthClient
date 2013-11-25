@@ -250,7 +250,6 @@ public class ShibbolethECPAuthClient {
             // -- Handle log-in response from the IdP --------------------------------------------
             log.debug("Status: " + idpLoginResponse.getStatusLine());
             if (idpLoginResponse.getStatusLine().getStatusCode() != 200) {
-                log.debug("Status: " + idpLoginResponse.getStatusLine());
                 throw new AuthenticationException(idpLoginResponse.getStatusLine().toString());
             }
             
