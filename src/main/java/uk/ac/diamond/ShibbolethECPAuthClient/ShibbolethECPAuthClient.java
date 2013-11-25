@@ -34,8 +34,7 @@ import java.util.List;
 
 import javax.security.sasl.AuthenticationException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -79,7 +78,7 @@ import org.opensaml.xml.util.Base64;
 
 public class ShibbolethECPAuthClient {
 
-    private static final Log log = LogFactory.getLog(ShibbolethECPAuthClient.class);
+    private static final Logger log = Logger.getLogger(ShibbolethECPAuthClient.class);
 
     private static final String AUTH_IN_PROGRESS = ShibbolethECPAuthClient.class.getName()
             + ".AUTH_IN_PROGRESS";

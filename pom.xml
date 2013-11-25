@@ -33,15 +33,21 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.5</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.7.5</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>org.opensaml</groupId>
       <artifactId>opensaml</artifactId>
       <version>2.5.3</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>log4j-over-slf4j</artifactId>
-          <groupId>org.slf4j</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
@@ -49,9 +55,9 @@
       <version>4.3</version>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging-api</artifactId>
-      <version>1.1</version>
-      </dependency>
-    </dependencies>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.16</version>
+    </dependency>
+  </dependencies>
 </project>
