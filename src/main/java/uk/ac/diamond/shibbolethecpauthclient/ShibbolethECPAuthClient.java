@@ -219,7 +219,7 @@ public class ShibbolethECPAuthClient {
 
     /**
      * @param idpURL The full ECP Profile URL of the Shibboleth Identity Provider
-     * @param spULR The URL to connect to to initiate the authentication process
+     * @param spURL The URL to connect to to initiate the authentication process
      * @param anyCert If true, disables certificate verification. Used generally with 
      *                self-signed certificates
      * 
