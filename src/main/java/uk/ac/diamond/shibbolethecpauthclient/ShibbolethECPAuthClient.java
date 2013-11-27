@@ -246,13 +246,13 @@ public class ShibbolethECPAuthClient {
         proxyHost = proxy;
     }
 
-    @SuppressWarnings("deprecation")
     /**
      * Attempts to authenticate the user and password against the IdP and SP this client
      * was initialized with. 
      * 
      * @param username The username on the IdP to authenticate
      * @param password The password to authenticate the username with
+     * @return A SAML Response from the Identity Provider
      * 
      * @throws IOException
      *             thrown if the client encounters a problem
@@ -261,6 +261,7 @@ public class ShibbolethECPAuthClient {
      * @throws SOAPClientException
      *             thrown if either Service Provider or Identity Provider are not configured for ECP
      */
+    @SuppressWarnings("deprecation")
     public org.opensaml.saml2.core.Response authenticate(String username, String password)
             throws IOException, AuthenticationException, SOAPClientException
     {
