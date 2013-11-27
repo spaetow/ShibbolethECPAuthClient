@@ -17,7 +17,7 @@
  ******************************************************************************/
 
 // copied the Utils class to our package
-package uk.ac.diamond.ShibbolethECPAuthClient;
+package uk.ac.diamond.shibbolethecpauthclient;
 
 import java.io.IOException;
 import java.io.InputStream;

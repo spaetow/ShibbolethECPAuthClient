@@ -22,7 +22,7 @@
  *
  ******************************************************************************/
 
-package uk.ac.diamond.ShibbolethECPAuthClient;
+package uk.ac.diamond.shibbolethecpauthclient;
 
 import static java.util.Arrays.asList;
 
