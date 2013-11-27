@@ -77,8 +77,18 @@ import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.parse.BasicParserPool;
 import org.opensaml.xml.util.Base64;
 
+/**
+ * Implementation of an authentication client that uses the Shibboleth
+ * ECP profile to use out-of-band means to authenticate a user against
+ * a Shibboleth Identity Provider. Currently requires web endpoint 
+ * protected by a Shibboleth Service Provider to function.
+ *
+ * @author Stefan Paetow
+ * @since 1.0
+ */
 public class ShibbolethECPAuthClient {
 
+    /** The logger instance */
     private static final Logger log = Logger.getLogger(ShibbolethECPAuthClient.class);
 
     private static final String AUTH_IN_PROGRESS = ShibbolethECPAuthClient.class.getName()
@@ -94,20 +104,43 @@ public class ShibbolethECPAuthClient {
 
     private static final String HEADER_PAOS = "PAOS";
 
+    /** The client that provides the HTTP transport for ECP to function */
     private CloseableHttpClient client;
 
+    /** A cookie store, otherwise no cookies can be stored for the HTTP context */
     private BasicCookieStore cookieStore;
 
+    /** The Shibboleth Identity Provider to use for authentication */
     private String IdP;
 
+    /** The Shibboleth-protected web endpoint used for initiation of authentication */
     private String SP;
 
+    /** A parser pool to manage the SOAP and SAML message processing */
     private BasicParserPool parserPool;
     
+    /** 
+     * An optional, explicit proxy host. Glassfish does not necessarily allow 
+     * the default proxy selector to pick up the proxy hosts specified on the 
+     * JVM command-line. 
+     */
     private HttpHost proxyHost;
 
     private static final List<String> REDIRECTABLE = asList("HEAD", "GET");
 
+    /**
+     * @param proxy The proxy to initialize this client with. All connections will be proxied
+     *              through this host 
+     * @param idpURL The full ECP Profile URL of the Shibboleth Identity Provider
+     * @param spURL The URL to connect to to initiate the authentication process
+     * @param anyCert If true, disables certificate verification. Used generally with 
+     *                self-signed certificates
+     * 
+     * @throws ConfigurationException
+     *             thrown if SAML is not able to initialize properly
+     * @throws IllegalStateException
+     *             thrown if there is another problem
+     */
     public ShibbolethECPAuthClient(HttpHost proxy, String idpURL, String spURL, boolean anyCert) 
             throws ConfigurationException, IllegalStateException
     {
@@ -184,6 +217,17 @@ public class ShibbolethECPAuthClient {
         parserPool.setNamespaceAware(true);
     }
 
+    /**
+     * @param idpURL The full ECP Profile URL of the Shibboleth Identity Provider
+     * @param spULR The URL to connect to to initiate the authentication process
+     * @param anyCert If true, disables certificate verification. Used generally with 
+     *                self-signed certificates
+     * 
+     * @throws ConfigurationException
+     *             thrown if SAML is not able to initialize properly
+     * @throws IllegalStateException
+     *             thrown if there is another problem
+     */
     public ShibbolethECPAuthClient(String idpURL, String spURL, boolean anyCert) 
             throws ConfigurationException, IllegalStateException
     {
@@ -203,6 +247,20 @@ public class ShibbolethECPAuthClient {
     }
 
     @SuppressWarnings("deprecation")
+    /**
+     * Attempts to authenticate the user and password against the IdP and SP this client
+     * was initialized with. 
+     * 
+     * @param username The username on the IdP to authenticate
+     * @param password The password to authenticate the username with
+     * 
+     * @throws IOException
+     *             thrown if the client encounters a problem
+     * @throws AuthenticationException
+     *             thrown if the client could not authenticate the username + password
+     * @throws SOAPClientException
+     *             thrown if either Service Provider or Identity Provider are not configured for ECP
+     */
     public org.opensaml.saml2.core.Response authenticate(String username, String password)
             throws IOException, AuthenticationException, SOAPClientException
     {

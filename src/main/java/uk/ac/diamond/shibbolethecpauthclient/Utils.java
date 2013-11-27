@@ -60,12 +60,14 @@ final class Utils
      * Helper method that deserializes and unmarshalls the message from the given stream. This
      * method has been adapted from {@code org.opensaml.ws.message.decoder.BaseMessageDecoder}.
      * 
+     * @param parserPool
+     *            The parser to use for unmarshalling the message
      * @param messageStream
-     *            input stream containing the message
+     *            Input stream containing the message
      * 
-     * @return the inbound message
+     * @return The in-bound message
      * 
-     * @throws MessageDecodingException
+     * @throws ClientProtocolException
      *             thrown if there is a problem deserializing and unmarshalling the message
      */
     static XMLObject unmarshallMessage(ParserPool parserPool, InputStream messageStream)
@@ -97,6 +99,17 @@ final class Utils
         }
     }
 
+    /**
+     * Helper method that turns the message into a formatted XML string.
+     * 
+     * @param aObject
+     *            The XML object to turn into a formatted XML string
+     * 
+     * @return The XML string
+     * 
+     * @throws IOException
+     *             thrown if there is a problem turning the XML object into a string
+     */
     static String xmlToString(XMLObject aObject)
         throws IOException
     {
@@ -123,6 +136,14 @@ final class Utils
         }
     }
     
+    /**
+     * Helper method that turns the message into a formatted XML string.
+     * 
+     * @param doc
+     *            The XML document to turn into a formatted XML string
+     * 
+     * @return The XML string
+     */
     static String xmlToString(Element doc)
     {
         StringWriter sw = new StringWriter();
