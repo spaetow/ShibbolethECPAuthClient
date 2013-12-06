@@ -64,6 +64,7 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.core.StatusCode;
@@ -155,12 +156,10 @@ public class ShibbolethECPAuthClient {
             try {
                 SSLContextBuilder builder = new SSLContextBuilder();
                 builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
-                SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build());
-                PlainConnectionSocketFactory plainsf = new PlainConnectionSocketFactory();
                 Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder
                         .<ConnectionSocketFactory> create()
-                        .register("http", plainsf)
-                        .register("https", sslsf)
+                        .register("http", new PlainConnectionSocketFactory())
+                        .register("https", new SSLConnectionSocketFactory(builder.build()))
                         .build();
                 connMgr = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
             }
@@ -175,9 +174,6 @@ public class ShibbolethECPAuthClient {
         connMgr.setMaxTotal(10);
         connMgr.setDefaultMaxPerRoute(5);
 
-        // retrieve the JVM parameters for proxy state (do we have a proxy?)
-        SystemDefaultRoutePlanner sdrp = new SystemDefaultRoutePlanner(ProxySelector.getDefault());
-
         // The client needs to remember the auth cookie
         cookieStore = new BasicCookieStore();
         RequestConfig globalRequestConfig = RequestConfig.custom()
@@ -189,7 +185,7 @@ public class ShibbolethECPAuthClient {
             client = HttpClients.custom()
                     .setConnectionManager(connMgr)
                     // use the proxy settings of the JVM, if specified 
-                    .setRoutePlanner(sdrp)
+                    .setRoutePlanner(new SystemDefaultRoutePlanner(ProxySelector.getDefault()))
                     // The client needs to remember the auth cookie
                     .setDefaultRequestConfig(globalRequestConfig)
                     .setDefaultCookieStore(cookieStore)
@@ -354,10 +350,10 @@ public class ShibbolethECPAuthClient {
     /**
      * Add the ECP/PAOS headers to each outgoing request.
      */
+    @SuppressWarnings("deprecation")
     private final class HttpRequestPreprocessor
             implements HttpRequestInterceptor
     {
-        @Override
         public void process(final HttpRequest req, final HttpContext ctx)
                 throws HttpException, IOException
         {
