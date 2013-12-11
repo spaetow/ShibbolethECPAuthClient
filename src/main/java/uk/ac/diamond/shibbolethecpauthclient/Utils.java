@@ -46,121 +46,119 @@ import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-final class Utils
-{
-    private static final Log LOG = LogFactory.getLog(Utils.class);
-    
-    private Utils()
-    {
-        // No instances
-    }
+final class Utils {
+	private static final Log LOG = LogFactory.getLog(Utils.class);
 
-    /**
-     * Helper method that deserializes and unmarshalls the message from the given stream. This
-     * method has been adapted from {@code org.opensaml.ws.message.decoder.BaseMessageDecoder}.
-     * 
-     * @param parserPool
-     *            The parser to use for unmarshalling the message
-     * @param messageStream
-     *            Input stream containing the message
-     * 
-     * @return The in-bound message
-     * 
-     * @throws ClientProtocolException
-     *             thrown if there is a problem deserializing and unmarshalling the message
-     */
-    static XMLObject unmarshallMessage(ParserPool parserPool, InputStream messageStream)
-        throws ClientProtocolException
-    {
-        try {
-            Document messageDoc = parserPool.parse(messageStream);
-            Element messageElem = messageDoc.getDocumentElement();
+	private Utils() {
+		// No instances
+	}
 
-            Unmarshaller unmarshaller = Configuration.getUnmarshallerFactory().getUnmarshaller(
-                    messageElem);
-            if (unmarshaller == null) {
-                throw new ClientProtocolException(
-                        "Unable to unmarshall message, no unmarshaller registered for message element "
-                                + XMLHelper.getNodeQName(messageElem));
-            }
+	/**
+	 * Helper method that deserializes and unmarshalls the message from the given stream. This
+	 * method has been adapted from {@code org.opensaml.ws.message.decoder.BaseMessageDecoder}.
+	 * 
+	 * @param parserPool
+	 *The parser to use for unmarshalling the message
+	 * @param messageStream
+	 *Input stream containing the message
+	 * 
+	 * @return The in-bound message
+	 * 
+	 * @throws ClientProtocolException
+	 * thrown if there is a problem deserializing and unmarshalling the message
+	 */
+	static XMLObject unmarshallMessage(ParserPool parserPool, InputStream messageStream)
+			throws ClientProtocolException {
 
-            XMLObject message = unmarshaller.unmarshall(messageElem);
+		try {
+			Document messageDoc = parserPool.parse(messageStream);
+			Element messageElem = messageDoc.getDocumentElement();
 
-            return message;
-        }
-        catch (XMLParserException e) {
-            throw new ClientProtocolException(
-                    "Encountered error parsing message into its DOM representation", e);
-        }
-        catch (UnmarshallingException e) {
-            throw new ClientProtocolException(
-                    "Encountered error unmarshalling message from its DOM representation", e);
-        }
-    }
+			Unmarshaller unmarshaller = Configuration.getUnmarshallerFactory().getUnmarshaller(
+					messageElem);
+			if (unmarshaller == null) {
+				throw new ClientProtocolException(
+						"Unable to unmarshall message, no unmarshaller registered for message element "
+								+ XMLHelper.getNodeQName(messageElem));
+			}
 
-    /**
-     * Helper method that turns the message into a formatted XML string.
-     * 
-     * @param aObject
-     *            The XML object to turn into a formatted XML string
-     * 
-     * @return The XML string
-     * 
-     * @throws IOException
-     *             thrown if there is a problem turning the XML object into a string
-     */
-    static String xmlToString(XMLObject aObject)
-        throws IOException
-    {
-        Document doc;
-        try {
-            doc = Configuration.getMarshallerFactory().getMarshaller(aObject).marshall(aObject)
-                    .getOwnerDocument();
-        }
-        catch (MarshallingException e) {
-            throw new IOException(e);
-        }
+			XMLObject message = unmarshaller.unmarshall(messageElem);
 
-        try {
-            Source source = new DOMSource(doc);
-            StringWriter stringWriter = new StringWriter();
-            Result result = new StreamResult(stringWriter);
-            TransformerFactory factory = TransformerFactory.newInstance();
-            Transformer transformer = factory.newTransformer();
-            transformer.transform(source, result);
-            return stringWriter.getBuffer().toString();
-        }
-        catch (TransformerException e) {
-            throw new IOException(e);
-        }
-    }
-    
-    /**
-     * Helper method that turns the message into a formatted XML string.
-     * 
-     * @param doc
-     *            The XML document to turn into a formatted XML string
-     * 
-     * @return The XML string
-     */
-    static String xmlToString(Element doc)
-    {
-        StringWriter sw = new StringWriter();
-        try {
-            TransformerFactory tf = TransformerFactory.newInstance();
-            Transformer transformer = tf.newTransformer();
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+			return message;
+		}
+		catch (XMLParserException e) {
+			throw new ClientProtocolException(
+					"Encountered error parsing message into its DOM representation", e);
+		}
+		catch (UnmarshallingException e) {
+			throw new ClientProtocolException(
+					"Encountered error unmarshalling message from its DOM representation", e);
+		}
+	}
 
-            transformer.transform(new DOMSource(doc), new StreamResult(sw));
-            return sw.toString();
-        }
-        catch (TransformerException e) {
-            LOG.error("Unable to print message contents: ", e);
-            return "<ERROR: " + e.getMessage()+ ">";
-        }
-    }
+	/**
+	 * Helper method that turns the message into a formatted XML string.
+	 * 
+	 * @param aObject
+	 *The XML object to turn into a formatted XML string
+	 * 
+	 * @return The XML string
+	 * 
+	 * @throws IOException
+	 * thrown if there is a problem turning the XML object into a string
+	 */
+	static String xmlToString(XMLObject aObject)
+			throws IOException {
+
+		Document doc;
+		try {
+			doc = Configuration.getMarshallerFactory().getMarshaller(aObject).marshall(aObject)
+					.getOwnerDocument();
+		}
+		catch (MarshallingException e) {
+			throw new IOException(e);
+		}
+
+		try {
+			Source source = new DOMSource(doc);
+			StringWriter stringWriter = new StringWriter();
+			Result result = new StreamResult(stringWriter);
+			TransformerFactory factory = TransformerFactory.newInstance();
+			Transformer transformer = factory.newTransformer();
+			transformer.transform(source, result);
+			return stringWriter.getBuffer().toString();
+		}
+		catch (TransformerException e) {
+			throw new IOException(e);
+		}
+	}
+
+	/**
+	 * Helper method that turns the message into a formatted XML string.
+	 * 
+	 * @param doc
+	 *The XML document to turn into a formatted XML string
+	 * 
+	 * @return The XML string
+	 */
+	static String xmlToString(Element doc) {
+
+		StringWriter sw = new StringWriter();
+		try {
+			TransformerFactory tf = TransformerFactory.newInstance();
+			Transformer transformer = tf.newTransformer();
+			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+			transformer.transform(new DOMSource(doc), new StreamResult(sw));
+			return sw.toString();
+		}
+		catch (TransformerException e) {
+			LOG.error("Unable to print message contents: ", e);
+			return "<ERROR: " + e.getMessage()+ ">";
+		}
+	}
 }
