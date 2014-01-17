@@ -32,7 +32,7 @@
 
   <groupId>uk.ac.diamond</groupId>
   <artifactId>shibboleth-ecp-authclient</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
   <packaging>jar</packaging>
 
   <name>Shibboleth ECP Authentication Client</name>
@@ -92,6 +92,11 @@
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <version>1.2.16</version>
+    </dependency>
+    <dependency>
+      <groupId>de.tudarmstadt.ukp.shibhttpclient</groupId>
+      <artifactId>shib-http-client</artifactId>
+      <version>1.0.0</version>
     </dependency>
   </dependencies>
 
